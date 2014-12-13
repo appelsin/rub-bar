@@ -1,37 +1,20 @@
 require 'net/http'
 require 'sinatra/json'
+require_relative 'lib/stupid_cache'
+require_relative 'lib/chart_model'
 
 get '/' do
   slim :chart #, layout: :app
 end
 
-get '/chart/rub_oil.json' do
-  a = Ox.parse Net::HTTP.get('news.yandex.ru', '/quotes/graph_1.xml')
-  b = Ox.parse Net::HTTP.get('news.yandex.ru', '/quotes/graph_1006.xml')
-
-  usd = {
-      time: a.series.x.nodes.first.split(';').map { |v| v.to_i },
-      val: a.series.y.nodes.first.split(';').map{|v| v.to_f.round }
-  }
-
-  oil = {
-      time: b.series.x.nodes.first.split(';').map { |v| v.to_i },
-      val: b.series.y.nodes.first.split(';').map { |v| v.to_f.round }
-  }
-
-  oil_rub = { time: [], val: [] }
-
-  j = 0 # exchange rate for current time
-  usd_exc_rate = usd[:val][0]
-  oil[:time].each_with_index do |time, i|
-    while(( time > usd[:time][j+1] ) rescue false)
-      j+= 1
-      usd_exc_rate = usd[:val][j]
+get '/chart/rub_bar.json' do
+  result_json = StupidCache.fetch :rub_bar do
+    result_data = StupidCache.fetch :rub_bar do
+      ChartModel.get_rub_bar
     end
-
-    oil_rub[:time] << time
-    oil_rub[:val] << usd_exc_rate * oil[:val][i] rescue 0
+    Oj.dump(result_data, mode: :compat)
   end
 
-  json oil_rub, encoder: lambda {|data| Oj.dump(data, mode: :compat) }
+  content_type 'application/json'
+  result_json
 end

@@ -7,6 +7,7 @@ html lang="en"
     title Динамика стоимости барреля нефти в рублях
     link href="/javascripts/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet"
     link href="/stylesheets/style.css" rel="stylesheet"
+    link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300&subset=latin,cyrillic' rel='stylesheet' type='text/css'
     | <!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
         <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -15,14 +16,23 @@ html lang="en"
     .header
       .container
         .page-header
-          h1 Динамика стоимости барреля нефти в рублях
+          h1 RUB/BAR
+          h3 Динамика стоимости барреля нефти в рублях
 
     .container
       .pad-before-3
         canvas id="oil_chart" height="400"
 
+        p
+          button type="button" class="btn btn-primary period-btn period-month" месяц
+          button type="button" class="btn period-btn period-months-3" 3 месяца
+          button type="button" class="btn period-btn period-year" год
+          button type="button" class="btn period-btn period-years-3" 3 года
+          button type="button" class="btn period-btn period-years-6" 6 лет
+          button type="button" class="btn period-btn period-all" с 1998
+
       .pad-before-3
-        p Рассчитано исхрдя из стоимости <a href="http://news.yandex.ru/quotes/1006.html">барреля нефти Brent</a> в USD и <a href="http://news.yandex.ru/quotes/1.html">курса USD ЦБ РФ</a>.
+        p Рассчитано исходя из стоимости <a href="http://news.yandex.ru/quotes/1006.html">барреля нефти Brent</a> в USD и <a href="http://news.yandex.ru/quotes/1.html">курса USD ЦБ РФ</a>.
           Данные взяты из <a href="http://yandex.ru">Яндекс</a>.
 
     .pad-before-3
@@ -34,114 +44,57 @@ html lang="en"
     script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"
     script src="/javascripts/bootstrap/dist/js/bootstrap.min.js"
     script src="/javascripts/chartjs/Chart.min.js"
-
-    /// Get the context of the canvas element we want to select
-    /var ctx = document.getElementById("myChart").getContext("2d");
-    /var myNewChart = new Chart(ctx).PolarArea(data);
-    /We can also get the context of our canvas with jQuery. To do this, we need to get the DOM node out of the jQuery collection, and call the getContext("2d") method on that.
-    /
-    /// Get context with jQuery - using jQuery's .get() method.
-    /
-    /// This will get the first returned node in the jQuery collection.
-    /var myNewChart = new Chart(ctx);
+    script src="/javascripts/scripts.js"
 
     javascript:
-      function respChart(selector, data, options){
-
-        // Define default option for line chart
-        var option = {
-          scaleOverlay : false,
-          scaleOverride : false,
-          scaleSteps : null,
-          scaleStepWidth : null,
-          scaleStartValue : null,
-          scaleLineColor : "rgba(0,0,0,.1)",
-          scaleLineWidth : 1,
-          scaleShowLabels : true,
-          scaleLabel : "<%=value%>",
-          scaleFontFamily : "'proxima-nova'",
-          scaleFontSize : 12,
-          scaleFontStyle : "normal",
-          scaleFontColor : "#909090",
-          scaleShowGridLines : true,
-          scaleGridLineColor : "rgba(0,0,0,.05)",
-          scaleGridLineWidth : 1,
-          bezierCurve : true,
-          pointDot : true,
-          pointDotRadius : 3,
-          pointDotStrokeWidth : 1,
-          datasetStroke : true,
-          datasetStrokeWidth : 2,
-          datasetFill : true,
-          animation : false,
-          animationSteps : 60,
-          animationEasing : "easeOutQuart",
-          onAnimationComplete : null
-        };
-
-        // check if the option is override to exact options
-        // (bar, pie and other)
-        if (options == false || options == null){
-          options = option;
-        }
-
-        // get selector by context
-        var ctx = selector.get(0).getContext("2d");
-        // pointing parent container to make chart js inherit its width
-        var container = $(selector).parent();
-
-        // enable resizing matter
-        $(window).resize( generateChart );
-
-        // this function produce the responsive Chart JS
-        function generateChart(){
-          // make chart width fit with its container
-          var ww = selector.attr('width', $(container).width() );
-          // Initiate new chart or Redraw
-          new Chart(ctx).Line(data, options);
-        }
-
-        // run function - render chart at first load
-        generateChart();
-
-      }
-
-      //respChart($(".myChart"), data);
-      //var ctx = $("#oil_chart").get(0).getContext("2d");
-      //var options = {};
-
       $.ajax({
-        url: "/chart/rub_oil.json",
+        url: "/chart/rub_bar.json",
         context: document.body
-      }).done(function(data) {
-        var values = data.val.slice(-30);
-        var lables = data.time.slice(-30);
-        var months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июня', 'июля', 'авг', 'сент', 'окт', 'нояб', 'дек'];
-        lables = $.map(lables, function (val, i) {
-          var date = new Date(val * 1000);
-          var year = date.getFullYear();
-          var month = months[date.getMonth()];
-          var day = date.getDate();
-          return day + ' ' + month + ' ' + year;
-          //return date.getUTCMonth() + ' ' + date.getYear();
+      }).done(function(ajax_data) {
+        var chart_data = chart_from_ajax(ajax_data, 30);
+        var chart = respChart("#oil_chart", chart_data);
+
+        $('.period-btn.period-month').click(function(){
+          $('.period-btn').removeClass('btn-primary');
+          $(this).addClass('btn-primary');
+          var chart_data_month = chart_from_ajax(ajax_data, 30);
+          chart(chart_data_month);
         });
 
-        var data = {
-          labels: lables,
-          datasets: [
-            {
-              label: "Rub/Bar Oil",
-              fillColor: "rgba(220,220,220,0.2)",
-              strokeColor: "rgba(220,220,220,1)",
-              pointColor: "rgba(220,220,220,1)",
-              pointStrokeColor: "#fff",
-              pointHighlightFill: "#fff",
-              pointHighlightStroke: "rgba(220,220,220,1)",
-              data: values
-            }
-          ]
-        };
-        respChart($("#oil_chart"), data);
-        //var oilChart = new Chart(ctx).Line(data, options);
-        //oilChart.reDraw();
+        $('.period-btn.period-months-3').click(function () {
+          $('.period-btn').removeClass('btn-primary');
+          $(this).addClass('btn-primary');
+          var chart_data_month_3 = chart_from_ajax(ajax_data, 90);
+          chart(chart_data_month_3);
+        });
+
+        $('.period-btn.period-year').click(function () {
+          $('.period-btn').removeClass('btn-primary');
+          $(this).addClass('btn-primary');
+          var chart_data_year = chart_from_ajax(ajax_data, 365);
+          chart(chart_data_year);
+        });
+
+        $('.period-btn.period-years-3').click(function () {
+          $('.period-btn').removeClass('btn-primary');
+          $(this).addClass('btn-primary');
+          var chart_data_year = chart_from_ajax(ajax_data, 365*3);
+          chart(chart_data_year);
+        });
+
+        $('.period-btn.period-years-6').click(function () {
+          $('.period-btn').removeClass('btn-primary');
+          $(this).addClass('btn-primary');
+          var chart_data_year = chart_from_ajax(ajax_data, 365 * 6);
+          chart(chart_data_year);
+        });
+
+        $('.period-btn.period-all').click(function () {
+          $('.period-btn').removeClass('btn-primary');
+          $(this).addClass('btn-primary');
+          var chart_data_all = chart_from_ajax(ajax_data, 999999);
+          chart(chart_data_all);
+        });
       });
+
+    | <!-- Yandex.Metrika counter --><script type="text/javascript"> (function (d, w, c) { (w[c] = w[c] || []).push(function() { try { w.yaCounter27469251 = new Ya.Metrika({ id:27469251, webvisor:true, trackHash:true }); } catch(e) { } }); var n = d.getElementsByTagName("script")[0], s = d.createElement("script"), f = function () { n.parentNode.insertBefore(s, n); }; s.type = "text/javascript"; s.async = true; s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js"; if (w.opera == "[object Opera]") { d.addEventListener("DOMContentLoaded", f, false); } else { f(); } })(document, window, "yandex_metrika_callbacks");</script><noscript><div><img src="//mc.yandex.ru/watch/27469251" style="position:absolute; left:-9999px;" alt="" /></div></noscript><!-- /Yandex.Metrika counter -->
