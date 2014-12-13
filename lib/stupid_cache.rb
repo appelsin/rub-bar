@@ -1,7 +1,7 @@
 class StupidCache
   @data = {}
   @timestamp = {}
-  @expire = 1
+  @expire = 60
 
   def self.get(key)
     (Time.now.to_i - (@timestamp[key]||0)) < @expire ? @data[key] : nil
