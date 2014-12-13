@@ -1,0 +1,8 @@
+{
+    "name": "my-project",
+    "version": "1.0.0",
+    "dependencies": {
+        "chartjs": "~> 1.0.0",
+        "bootstrap": "~> 3.3.1"
+    }
+}

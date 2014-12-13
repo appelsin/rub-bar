@@ -1,0 +1,21 @@
+.header {
+    background-color: #6f5499;
+    color: #ffffff;
+}
+
+.footer {
+    background-color: #433f4a;
+    color: #ffffff;
+}
+
+.page-header {
+    border: 0;
+}
+
+.pad-before-3 {
+    padding-top: 3rem;
+}
+
+.pad-after-2 {
+    padding-bottom: 2rem;
+}

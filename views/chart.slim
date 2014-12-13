@@ -1,0 +1,147 @@
+DOCTYPE html
+html lang="en"
+  head
+    meta charset="utf-8"
+    meta http-equiv="X-UA-Compatible" content="IE=edge"
+    meta name="viewport" content="width=device-width, initial-scale=1"
+    title Динамика стоимости барреля нефти в рублях
+    link href="/javascripts/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet"
+    link href="/stylesheets/style.css" rel="stylesheet"
+    | <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+      <![endif]-->
+  body
+    .header
+      .container
+        .page-header
+          h1 Динамика стоимости барреля нефти в рублях
+
+    .container
+      .pad-before-3
+        canvas id="oil_chart" height="400"
+
+      .pad-before-3
+        p Рассчитано исхрдя из стоимости <a href="http://news.yandex.ru/quotes/1006.html">барреля нефти Brent</a> в USD и <a href="http://news.yandex.ru/quotes/1.html">курса USD ЦБ РФ</a>.
+          Данные взяты из <a href="http://yandex.ru">Яндекс</a>.
+
+    .pad-before-3
+    .footer
+      .container.pad-before-3.pad-after-2
+        //p 123
+
+
+    script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"
+    script src="/javascripts/bootstrap/dist/js/bootstrap.min.js"
+    script src="/javascripts/chartjs/Chart.min.js"
+
+    /// Get the context of the canvas element we want to select
+    /var ctx = document.getElementById("myChart").getContext("2d");
+    /var myNewChart = new Chart(ctx).PolarArea(data);
+    /We can also get the context of our canvas with jQuery. To do this, we need to get the DOM node out of the jQuery collection, and call the getContext("2d") method on that.
+    /
+    /// Get context with jQuery - using jQuery's .get() method.
+    /
+    /// This will get the first returned node in the jQuery collection.
+    /var myNewChart = new Chart(ctx);
+
+    javascript:
+      function respChart(selector, data, options){
+
+        // Define default option for line chart
+        var option = {
+          scaleOverlay : false,
+          scaleOverride : false,
+          scaleSteps : null,
+          scaleStepWidth : null,
+          scaleStartValue : null,
+          scaleLineColor : "rgba(0,0,0,.1)",
+          scaleLineWidth : 1,
+          scaleShowLabels : true,
+          scaleLabel : "<%=value%>",
+          scaleFontFamily : "'proxima-nova'",
+          scaleFontSize : 12,
+          scaleFontStyle : "normal",
+          scaleFontColor : "#909090",
+          scaleShowGridLines : true,
+          scaleGridLineColor : "rgba(0,0,0,.05)",
+          scaleGridLineWidth : 1,
+          bezierCurve : true,
+          pointDot : true,
+          pointDotRadius : 3,
+          pointDotStrokeWidth : 1,
+          datasetStroke : true,
+          datasetStrokeWidth : 2,
+          datasetFill : true,
+          animation : false,
+          animationSteps : 60,
+          animationEasing : "easeOutQuart",
+          onAnimationComplete : null
+        };
+
+        // check if the option is override to exact options
+        // (bar, pie and other)
+        if (options == false || options == null){
+          options = option;
+        }
+
+        // get selector by context
+        var ctx = selector.get(0).getContext("2d");
+        // pointing parent container to make chart js inherit its width
+        var container = $(selector).parent();
+
+        // enable resizing matter
+        $(window).resize( generateChart );
+
+        // this function produce the responsive Chart JS
+        function generateChart(){
+          // make chart width fit with its container
+          var ww = selector.attr('width', $(container).width() );
+          // Initiate new chart or Redraw
+          new Chart(ctx).Line(data, options);
+        }
+
+        // run function - render chart at first load
+        generateChart();
+
+      }
+
+      //respChart($(".myChart"), data);
+      //var ctx = $("#oil_chart").get(0).getContext("2d");
+      //var options = {};
+
+      $.ajax({
+        url: "/chart/rub_oil.json",
+        context: document.body
+      }).done(function(data) {
+        var values = data.val.slice(-30);
+        var lables = data.time.slice(-30);
+        var months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июня', 'июля', 'авг', 'сент', 'окт', 'нояб', 'дек'];
+        lables = $.map(lables, function (val, i) {
+          var date = new Date(val * 1000);
+          var year = date.getFullYear();
+          var month = months[date.getMonth()];
+          var day = date.getDate();
+          return day + ' ' + month + ' ' + year;
+          //return date.getUTCMonth() + ' ' + date.getYear();
+        });
+
+        var data = {
+          labels: lables,
+          datasets: [
+            {
+              label: "Rub/Bar Oil",
+              fillColor: "rgba(220,220,220,0.2)",
+              strokeColor: "rgba(220,220,220,1)",
+              pointColor: "rgba(220,220,220,1)",
+              pointStrokeColor: "#fff",
+              pointHighlightFill: "#fff",
+              pointHighlightStroke: "rgba(220,220,220,1)",
+              data: values
+            }
+          ]
+        };
+        respChart($("#oil_chart"), data);
+        //var oilChart = new Chart(ctx).Line(data, options);
+        //oilChart.reDraw();
+      });
