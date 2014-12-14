@@ -27,6 +27,7 @@ html lang="en"
         p
           button type="button" class="btn btn-primary period-btn period-month" месяц
           button type="button" class="btn period-btn period-months-3" 3 месяца
+          button type="button" class="btn period-btn period-months-6" 6 месяцев
           button type="button" class="btn period-btn period-year" год
           button type="button" class="btn period-btn period-years-3" 3 года
           button type="button" class="btn period-btn period-years-6" 6 лет
@@ -73,6 +74,13 @@ html lang="en"
           $(this).addClass('btn-primary');
           var chart_data_month_3 = chart_from_ajax(ajax_data, 90);
           chart(chart_data_month_3);
+        });
+
+        $('.period-btn.period-months-6').click(function () {
+          $('.period-btn').removeClass('btn-primary');
+          $(this).addClass('btn-primary');
+          var chart_data_month_6 = chart_from_ajax(ajax_data, 182);
+          chart(chart_data_month_6);
         });
 
         $('.period-btn.period-year').click(function () {
