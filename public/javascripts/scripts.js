@@ -38,9 +38,20 @@ function respChart(selector, data, options) {
     // enable resizing matter
     $(window).resize(generateChart);
 
+    function xinspect(o, i) {
+        if (typeof i == 'undefined')i = '';
+        if (i.length > 50)return '[MAX ITERATIONS]';
+        var r = [];
+        for (var p in o) {
+            var t = typeof o[p];
+            r.push(i + '"' + p + '" (' + t + ') => ' + o[p] );
+        }
+        return r.join(i + '\n');
+    }
+
     // this function produce the responsive Chart JS
     function generateChart(new_data) {
-        if(typeof new_data !== 'undefined'){
+        if(typeof new_data !== 'undefined' && new_data && new_data.type != 'resize'){
             data = new_data;
             $(selector).replaceWith('<canvas id="oil_chart" height="400"></canvas>');
         }
