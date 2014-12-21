@@ -82,15 +82,21 @@ function chart_from_ajax(data, slice) {
     var values_all = data.val.slice(-slice);
     var labels_all = data.time.slice(-slice);
 
+    // skip if too much elements
     var skip = Math.floor(values_all.length/30);
     skip = skip < 1 ? 1 : skip;
 
+    // getting elements to show starting from max date
     var values = [];
     var labels = [];
-    for (var i = 0; i < values_all.length; i = i + skip) {
+    for (var i = values_all.length-1; i >= 0 ; i = i - skip) {
         values.push(values_all[i]);
         labels.push(labels_all[i]);
     }
+
+    // reverse it for past to future will be left to right in chart
+    values.reverse();
+    labels.reverse();
 
     var months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июня', 'июля', 'авг', 'сент', 'окт', 'нояб', 'дек'];
     labels = $.map(labels, function (val, i) {
