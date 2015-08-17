@@ -10,6 +10,7 @@ function respChart(selector, data, options) {
         scaleLineColor: "rgba(0,0,0,.1)",
         scaleLineWidth: 1,
         scaleShowLabels: true,
+        scaleBeginAtZero: 1,
         scaleFontFamily: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
         scaleFontSize: 10,
         scaleFontStyle: "normal",
