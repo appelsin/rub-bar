@@ -32,6 +32,7 @@ html lang="en"
           button type="button" class="btn period-btn period-years-3" 3 года
           button type="button" class="btn period-btn period-years-6" 6 лет
           button type="button" class="btn period-btn period-all" с 1998
+          button type="button" class="btn js-zero-scale right" Масштаб
 
       .pad-before-3
         p Рассчитано исходя из стоимости <a href="http://news.yandex.ru/quotes/1006.html">барреля нефти Brent</a> в USD и <a href="http://news.yandex.ru/quotes/1.html">курса USD ЦБ РФ</a>.
@@ -55,60 +56,79 @@ html lang="en"
     script src="/javascripts/scripts.js"
 
     javascript:
+      var State = {
+        zeroScale: true
+      };
+
       $.ajax({
         url: "/chart/rub_bar.json",
         context: document.body
       }).done(function(ajax_data) {
         var chart_data = chart_from_ajax(ajax_data, 30);
-        var chart = respChart("#oil_chart", chart_data);
+        var chart = respChart("#oil_chart", chart_data, {scaleBeginAtZero: State.zeroScale});
+
+        $('.js-zero-scale').click(function(){
+          State.zeroScale = !State.zeroScale;
+          chart = respChart("#oil_chart", chart_data, {scaleBeginAtZero: State.zeroScale});
+          chart(chart_data);
+          if(State.zeroScale) {
+            $(this).removeClass('btn-primary');
+          } else {
+            $(this).addClass('btn-primary');
+          }
+        });
 
         $('.period-btn.period-month').click(function(){
           $('.period-btn').removeClass('btn-primary');
           $(this).addClass('btn-primary');
-          var chart_data_month = chart_from_ajax(ajax_data, 30);
-          chart(chart_data_month);
+          chart_data = chart_from_ajax(ajax_data, 30);
+          chart(chart_data);
         });
 
         $('.period-btn.period-months-3').click(function () {
           $('.period-btn').removeClass('btn-primary');
           $(this).addClass('btn-primary');
-          var chart_data_month_3 = chart_from_ajax(ajax_data, 90);
-          chart(chart_data_month_3);
+          chart_data = chart_from_ajax(ajax_data, 90);
+          chart(chart_data);
         });
 
         $('.period-btn.period-months-6').click(function () {
           $('.period-btn').removeClass('btn-primary');
           $(this).addClass('btn-primary');
-          var chart_data_month_6 = chart_from_ajax(ajax_data, 182);
-          chart(chart_data_month_6);
+          chart_data = chart_from_ajax(ajax_data, 182);
+          chart(chart_data);
         });
 
         $('.period-btn.period-year').click(function () {
           $('.period-btn').removeClass('btn-primary');
           $(this).addClass('btn-primary');
-          var chart_data_year = chart_from_ajax(ajax_data, 365);
-          chart(chart_data_year);
+          chart_data = chart_from_ajax(ajax_data, 365);
+          chart(chart_data);
         });
 
         $('.period-btn.period-years-3').click(function () {
           $('.period-btn').removeClass('btn-primary');
           $(this).addClass('btn-primary');
-          var chart_data_year = chart_from_ajax(ajax_data, 365*3);
-          chart(chart_data_year);
+          chart_data_ = chart_from_ajax(ajax_data, 365*3);
+          chart(chart_data);
         });
 
         $('.period-btn.period-years-6').click(function () {
           $('.period-btn').removeClass('btn-primary');
           $(this).addClass('btn-primary');
-          var chart_data_year = chart_from_ajax(ajax_data, 365 * 6);
-          chart(chart_data_year);
+          chart_data = chart_from_ajax(ajax_data, 365 * 6);
+          chart(chart_data);
         });
 
         $('.period-btn.period-all').click(function () {
           $('.period-btn').removeClass('btn-primary');
           $(this).addClass('btn-primary');
-          var chart_data_all = chart_from_ajax(ajax_data, 999999);
-          chart(chart_data_all);
+          chart_data = chart_from_ajax(ajax_data, 999999);
+          chart(chart_data);
+        });
+
+        $('.js-zero-scale').click(function () {
+          chart();
         });
       });
 

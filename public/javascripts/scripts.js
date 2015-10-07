@@ -1,7 +1,7 @@
 function respChart(selector, data, options) {
 
     // Define default option for line chart
-    var option = {
+    var default_options = {
         scaleOverlay: false,
         scaleOverride: false,
         scaleSteps: false,
@@ -33,7 +33,9 @@ function respChart(selector, data, options) {
     // check if the option is override to exact options
     // (bar, pie and other)
     if (options == false || options == null) {
-        options = option;
+        options = default_options;
+    } else {
+        options = $.extend({}, default_options, options);
     }
 
     // enable resizing matter
