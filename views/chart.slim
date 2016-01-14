@@ -109,7 +109,7 @@ html lang="en"
         $('.period-btn.period-years-3').click(function () {
           $('.period-btn').removeClass('btn-primary');
           $(this).addClass('btn-primary');
-          chart_data_ = chart_from_ajax(ajax_data, 365*3);
+          chart_data = chart_from_ajax(ajax_data, 365*3);
           chart(chart_data);
         });
 
