@@ -1,16 +1,19 @@
+require 'net/http'
+require 'json'
+
 class ChartModel
   def self.get_rub_bar
-    a = Ox.parse Net::HTTP.get('news.yandex.ru', '/quotes/graph_1.xml')
-    b = Ox.parse Net::HTTP.get('news.yandex.ru', '/quotes/graph_1006.xml')
+    a = JSON.parse Net::HTTP.get_response("news.yandex.ru", "/quotes/graph_1.json").body
+    b = JSON.parse Net::HTTP.get_response("news.yandex.ru", "/quotes/graph_1006.json").body
 
     usd = {
-        time: a.series.x.nodes.first.split(';').map { |v| v.to_i },
-        val: a.series.y.nodes.first.split(';').map { |v| v.to_f.round }
+        time: a['prices'].map { |v| v[0] },
+        val: a['prices'].map { |v| v[1] }
     }
 
     oil = {
-        time: b.series.x.nodes.first.split(';').map { |v| v.to_i },
-        val: b.series.y.nodes.first.split(';').map { |v| v.to_f.round }
+        time: b['prices'].map { |v| v[0] },
+        val: b['prices'].map { |v| v[1] }
     }
 
     oil_rub = {time: [], val: []}
