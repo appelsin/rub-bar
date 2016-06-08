@@ -103,7 +103,7 @@ function chart_from_ajax(data, slice) {
 
     var months = ['янв', 'фев', 'мар', 'апр', 'мая', 'июня', 'июля', 'авг', 'сент', 'окт', 'нояб', 'дек'];
     labels = $.map(labels, function (val, i) {
-        var date = new Date(val * 1000);
+        var date = new Date(val);
         var year = date.getFullYear();
         var month = months[date.getMonth()];
         var day = date.getDate();
